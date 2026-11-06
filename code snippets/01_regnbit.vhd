@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity regnbit is
     generic (
-        n_bits : positive := 8
+        n : positive := 8
     );
 
     port (
