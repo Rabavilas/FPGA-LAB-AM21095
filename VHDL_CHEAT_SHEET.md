@@ -34,6 +34,59 @@ end architecture rtl;
 - Declarations go before `begin`; concurrent statements go after it.
 - VHDL is case-insensitive, but consistent naming improves readability.
 
+## Creating and using your own package
+
+A package collects declarations you want to reuse, such as constants, subtypes, and function or procedure interfaces. Put their declarations in a package declaration; if a subprogram needs an implementation, provide it in a package body.
+
+```vhdl
+library ieee;
+use ieee.std_logic_1164.all;
+
+package design_pkg is
+    constant DATA_WIDTH : positive := 8;
+    subtype data_t is std_logic_vector(DATA_WIDTH - 1 downto 0);
+
+    function xor_reduce(value : std_logic_vector) return std_logic;
+end package design_pkg;
+
+package body design_pkg is
+    function xor_reduce(value : std_logic_vector) return std_logic is
+        variable result : std_logic := '0';
+    begin
+        for i in value'range loop
+            result := result xor value(i);
+        end loop;
+        return result;
+    end function xor_reduce;
+end package body design_pkg;
+```
+
+In another design unit, import the package with `use work.design_pkg.all;` (`work` is the current library). For example:
+
+```vhdl
+library ieee;
+use ieee.std_logic_1164.all;
+use work.design_pkg.all;
+
+entity parity_check is
+    port (
+        data   : in  data_t;
+        parity : out std_logic
+    );
+end entity parity_check;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use work.design_pkg.all;
+
+architecture rtl of parity_check is
+begin
+    parity <= xor_reduce(data);
+end architecture rtl;
+```
+
+Save the package in a VHDL source file and compile its declaration and body into the same library before compiling design units that use it. If a design unit references package declarations in its entity and architecture, make the package visible to both units.
+
 ## Types and useful operators
 
 | Type | Typical use |
