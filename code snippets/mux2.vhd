@@ -18,6 +18,6 @@ architecture behavior of mux2 is
 begin
     with sel select
         y <= a when '0',
-             b when '1';
+             b when '1',
              (others => '0') when others;
 end architecture behavior;
