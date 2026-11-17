@@ -74,6 +74,36 @@ flag <= '1' when a = b else '0';
 
 Conditional assignment is useful for simple muxes. For more branches, use a `process` with `if` or `case`.
 
+## Generate statements
+
+Use `generate` to describe repeated or conditionally included hardware. The loop bounds or condition are evaluated during elaboration, so they must be static (for example, based on a generic or constant); `generate` does not test a signal at runtime.
+
+A `for-generate` creates one copy of its concurrent statements for each index:
+
+```vhdl
+architecture rtl of vector_gate is
+begin
+    bit_gates : for i in y'range generate
+        y(i) <= data(i) and enable;
+    end generate bit_gates;
+end architecture rtl;
+```
+
+Here, `y`, `data`, and `enable` are ports, and the loop index `i` is an implicitly declared constant in each generated copy.
+
+An `if-generate` includes hardware only when its static condition is true, commonly based on a generic:
+
+```vhdl
+architecture rtl of optional_logic is
+begin
+    use_extra_logic : if USE_EXTRA_LOGIC generate
+        result <= a xor b;
+    end generate use_extra_logic;
+end architecture rtl;
+```
+
+Declare `USE_EXTRA_LOGIC` as a Boolean generic or constant. Use a normal `if` inside a process when the choice depends on signals during operation.
+
 ## Combinational process
 
 ```vhdl
